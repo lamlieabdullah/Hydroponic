@@ -1,0 +1,599 @@
+{
+  "version": "1.00",
+  "projectName": "D:\\Users\\Oee\\Documents\\Arduino\\Hydroponic\\Hydroponic.emf",
+  "author": "Oee",
+  "items": [
+    {
+      "parentId": 0,
+      "type": "textItem",
+      "item": {
+        "textLength": 16,
+        "itemType": "PLAIN_TEXT",
+        "name": "Hello",
+        "variableName": "status",
+        "id": 44,
+        "eepromAddress": -1,
+        "readOnly": true,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 0,
+      "type": "textItem",
+      "item": {
+        "textLength": 16,
+        "itemType": "PLAIN_TEXT",
+        "name": "pH",
+        "variableName": "PHEC",
+        "id": 1,
+        "eepromAddress": -1,
+        "readOnly": true,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 0,
+      "type": "analogItem",
+      "item": {
+        "maxValue": 100,
+        "offset": 0,
+        "divisor": 0,
+        "unitName": "C",
+        "name": "Temperature",
+        "variableName": "temperature",
+        "id": 3,
+        "eepromAddress": -1,
+        "readOnly": true,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 0,
+      "type": "subMenu",
+      "item": {
+        "secured": false,
+        "name": "Settings",
+        "variableName": "Settings",
+        "id": 4,
+        "eepromAddress": -1,
+        "functionName": "",
+        "readOnly": true,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 4,
+      "type": "actionMenu",
+      "item": {
+        "name": "Run Mix",
+        "variableName": "MixNow",
+        "id": 35,
+        "eepromAddress": -1,
+        "functionName": "runMix",
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 4,
+      "type": "actionMenu",
+      "item": {
+        "name": "Run Test",
+        "variableName": "TestNow",
+        "id": 39,
+        "eepromAddress": -1,
+        "functionName": "runTest",
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 4,
+      "type": "actionMenu",
+      "item": {
+        "name": "Run Pump",
+        "variableName": "Pumping",
+        "id": 40,
+        "eepromAddress": -1,
+        "functionName": "RunPump",
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 4,
+      "type": "actionMenu",
+      "item": {
+        "name": "Stop All",
+        "variableName": "StopAll",
+        "id": 41,
+        "eepromAddress": -1,
+        "functionName": "onStopAll",
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 4,
+      "type": "subMenu",
+      "item": {
+        "secured": false,
+        "name": "Dosing",
+        "variableName": "Dosing",
+        "id": 9,
+        "eepromAddress": -1,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 9,
+      "type": "analogItem",
+      "item": {
+        "maxValue": 100,
+        "offset": 0,
+        "divisor": 1,
+        "unitName": "ml",
+        "name": "ml",
+        "variableName": "Ml",
+        "id": 29,
+        "eepromAddress": 113,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 9,
+      "type": "analogItem",
+      "item": {
+        "maxValue": 255,
+        "offset": 0,
+        "divisor": 1,
+        "unitName": "ml",
+        "name": "ml min",
+        "variableName": "MlMin",
+        "id": 30,
+        "eepromAddress": 115,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 9,
+      "type": "boolItem",
+      "item": {
+        "naming": "ON_OFF",
+        "name": "Auto Dose",
+        "variableName": "AutoDose",
+        "id": 38,
+        "eepromAddress": 121,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 9,
+      "type": "actionMenu",
+      "item": {
+        "name": "Run Dosing",
+        "variableName": "RunDosing",
+        "id": 37,
+        "eepromAddress": -1,
+        "functionName": "runDose",
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 4,
+      "type": "subMenu",
+      "item": {
+        "secured": false,
+        "name": "EC",
+        "variableName": "EC",
+        "id": 23,
+        "eepromAddress": -1,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 23,
+      "type": "analogItem",
+      "item": {
+        "maxValue": 100,
+        "offset": 0,
+        "divisor": 10,
+        "unitName": "mscm",
+        "name": "Target",
+        "variableName": "TargetEC",
+        "id": 25,
+        "eepromAddress": 109,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 23,
+      "type": "analogItem",
+      "item": {
+        "maxValue": 100,
+        "offset": 0,
+        "divisor": 10,
+        "unitName": "mscm",
+        "name": "Minimum",
+        "variableName": "MinimumEC",
+        "id": 24,
+        "eepromAddress": 107,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 4,
+      "type": "subMenu",
+      "item": {
+        "secured": false,
+        "name": "Time",
+        "variableName": "Time",
+        "id": 13,
+        "eepromAddress": -1,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 13,
+      "type": "textItem",
+      "item": {
+        "textLength": 8,
+        "itemType": "TIME_24H",
+        "name": "Current Time",
+        "variableName": "CurrentTime",
+        "id": 26,
+        "eepromAddress": -1,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 4,
+      "type": "subMenu",
+      "item": {
+        "secured": false,
+        "name": "Running Time",
+        "variableName": "RunningTime",
+        "id": 17,
+        "eepromAddress": -1,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 17,
+      "type": "boolItem",
+      "item": {
+        "naming": "ON_OFF",
+        "name": "Auto",
+        "variableName": "Auto",
+        "id": 42,
+        "eepromAddress": 124,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 17,
+      "type": "analogItem",
+      "item": {
+        "maxValue": 60,
+        "offset": 0,
+        "divisor": 1,
+        "unitName": "min",
+        "name": "Run (min)",
+        "variableName": "RunMin",
+        "id": 18,
+        "eepromAddress": 39,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 17,
+      "type": "analogItem",
+      "item": {
+        "maxValue": 60,
+        "offset": 0,
+        "divisor": 1,
+        "unitName": "min",
+        "name": "Interval (min)",
+        "variableName": "IntervalMin",
+        "id": 19,
+        "eepromAddress": 41,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 17,
+      "type": "analogItem",
+      "item": {
+        "maxValue": 23,
+        "offset": 0,
+        "divisor": 1,
+        "unitName": "hr",
+        "name": "Start Time",
+        "variableName": "StartTime",
+        "id": 20,
+        "eepromAddress": 43,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 17,
+      "type": "analogItem",
+      "item": {
+        "maxValue": 23,
+        "offset": 0,
+        "divisor": 1,
+        "unitName": "hr",
+        "name": "End Time",
+        "variableName": "EndTime",
+        "id": 21,
+        "eepromAddress": 37,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 17,
+      "type": "analogItem",
+      "item": {
+        "maxValue": 60,
+        "offset": 0,
+        "divisor": 1,
+        "unitName": "min",
+        "name": "Mix Duration",
+        "variableName": "MixDuration",
+        "id": 33,
+        "eepromAddress": 117,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 17,
+      "type": "analogItem",
+      "item": {
+        "maxValue": 30,
+        "offset": 0,
+        "divisor": 1,
+        "unitName": "min",
+        "name": "Test Duration",
+        "variableName": "TestDuration",
+        "id": 34,
+        "eepromAddress": 119,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 17,
+      "type": "analogItem",
+      "item": {
+        "maxValue": 23,
+        "offset": 0,
+        "divisor": 1,
+        "unitName": "hr",
+        "name": "Test Time",
+        "variableName": "TestTime",
+        "id": 43,
+        "eepromAddress": 122,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 4,
+      "type": "subMenu",
+      "item": {
+        "secured": false,
+        "name": "Wifi Settings",
+        "variableName": "WifiSettings",
+        "id": 10,
+        "eepromAddress": -1,
+        "functionName": "",
+        "readOnly": true,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 10,
+      "type": "textItem",
+      "item": {
+        "textLength": 5,
+        "itemType": "IP_ADDRESS",
+        "name": "IP",
+        "variableName": "IP",
+        "id": 27,
+        "eepromAddress": -1,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 10,
+      "type": "textItem",
+      "item": {
+        "textLength": 20,
+        "itemType": "PLAIN_TEXT",
+        "name": "SSID",
+        "variableName": "SSID",
+        "id": 11,
+        "eepromAddress": 85,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 10,
+      "type": "textItem",
+      "item": {
+        "textLength": 20,
+        "itemType": "PLAIN_TEXT",
+        "name": "Password",
+        "variableName": "Password",
+        "id": 12,
+        "eepromAddress": 65,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 10,
+      "type": "enumItem",
+      "item": {
+        "enumEntries": [
+          "Client",
+          "AP"
+        ],
+        "name": "Wifi Mode",
+        "variableName": "WifiMode",
+        "id": 28,
+        "eepromAddress": 111,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 4,
+      "type": "actionMenu",
+      "item": {
+        "name": "Reboot",
+        "variableName": "Reboot",
+        "id": 45,
+        "eepromAddress": -1,
+        "functionName": "onReboot",
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 4,
+      "type": "actionMenu",
+      "item": {
+        "name": "Save Settings",
+        "variableName": "SaveSettings",
+        "id": 46,
+        "eepromAddress": -1,
+        "functionName": "onSaveSettings",
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    }
+  ],
+  "codeOptions": {
+    "embeddedPlatform": "ARDUINO_ESP32",
+    "lastDisplayUuid": "d4c84106-fa87-4024-b91e-053e17a52b8f",
+    "lastInputUuid": "2a3ae3ba-05f4-4c9c-aad3-3ddc88df9049",
+    "lastRemoteUuid": "2c101fec-1f7d-4ff3-8d2b-992ad41e7fcb",
+    "lastThemeUuid": "",
+    "applicationUUID": "ccb29002-7bf6-407b-bb5a-105430e55662",
+    "applicationName": "Hydroponic",
+    "lastProperties": [
+      {
+        "name": "LCD_WIDTH",
+        "latestValue": "16",
+        "subsystem": "DISPLAY"
+      },
+      {
+        "name": "LCD_HEIGHT",
+        "latestValue": "2",
+        "subsystem": "DISPLAY"
+      },
+      {
+        "name": "I2C_ADDRESS",
+        "latestValue": "0x27",
+        "subsystem": "DISPLAY"
+      },
+      {
+        "name": "PIN_LAYOUT",
+        "latestValue": "RS_RW_EN",
+        "subsystem": "DISPLAY"
+      },
+      {
+        "name": "WIRE_VARIABLE",
+        "latestValue": "Wire",
+        "subsystem": "DISPLAY"
+      },
+      {
+        "name": "PULLUP_LOGIC",
+        "latestValue": "true",
+        "subsystem": "INPUT"
+      },
+      {
+        "name": "INTERRUPT_SWITCHES",
+        "latestValue": "false",
+        "subsystem": "INPUT"
+      },
+      {
+        "name": "SWITCH_IODEVICE",
+        "latestValue": "",
+        "subsystem": "INPUT"
+      },
+      {
+        "name": "ENCODER_UP_PIN",
+        "latestValue": "18",
+        "subsystem": "INPUT"
+      },
+      {
+        "name": "ENCODER_DOWN_PIN",
+        "latestValue": "5",
+        "subsystem": "INPUT"
+      },
+      {
+        "name": "ENCODER_OK_PIN",
+        "latestValue": "19",
+        "subsystem": "INPUT"
+      }
+    ],
+    "namingRecursive": false,
+    "saveToSrc": false,
+    "useCppMain": false
+  }
+}

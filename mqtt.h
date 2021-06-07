@@ -1,0 +1,321 @@
+/*********
+  Rui Santos
+  Complete project details at https://randomnerdtutorials.com/esp32-mqtt-publish-subscribe-arduino-ide/
+*********/
+
+#include <PubSubClient.h>
+
+
+// Add your MQTT Broker IP address, example:
+//const char* mqtt_server = "192.168.1.144";
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+char msg[50];
+int value = 0;
+bool msgReceive;
+
+char tempString1[16];
+char tempString2[16];
+char tempString3[16];
+char tempString4[16];
+char tempString5[16];
+char tempString6[16];
+char tempString7[16];
+char tempString8[16];
+char tempString9[16];
+char tempString10[16];
+char tempString11[16];
+char tempString12[16];
+char tempString13[16];
+char tempString14[16];
+char tempString15[16];
+char tempString16[16];
+
+bool temppumpRunning = false;
+bool tempTestRunning = false;
+bool tempMixRunning = false;
+bool tempDoseRunning = false;
+
+bool tempAuto;
+bool tempAutoDose;
+float tempTargetEC;
+float tempMinEC;
+
+
+void callback(char* topic, byte* message, unsigned int length) {
+  //  Serial.print("Message arrived on topic: ");
+  //  Serial.println(topic);
+  msgReceive = true;
+  //  Serial.print(". Message: ");
+  String messageTemp;
+
+  for (int i = 0; i < length; i++) {
+    //    Serial.print((char)message[i]);
+    messageTemp += (char)message[i];
+  }
+  //  Serial.println();
+
+  // If a message is received on the topic esp32/output, you check if the message is either "on" or "off".
+  // Changes the output state according to the message
+  //  Serial.print(String(topic));
+  //  Serial.print(messageTemp);
+
+  if (String(topic) == "hydroponic/set/RunMin") {
+    menuRunMin.setCurrentValue(messageTemp.toInt());
+  }
+  if (String(topic) == "hydroponic/set/IntervalMin") {
+    menuIntervalMin.setCurrentValue(messageTemp.toInt());
+  }
+  if (String(topic) == "hydroponic/set/MlMin") {
+    menuMlMin.setCurrentValue(messageTemp.toInt());
+  }
+  if (String(topic) == "hydroponic/set/Ml") {
+    menuMl.setCurrentValue(messageTemp.toInt());
+  }
+  if (String(topic) == "hydroponic/set/MinimumEC") {
+    tempMinEC = messageTemp.toFloat() * 10;
+    menuMinimumEC.setCurrentValue(tempMinEC);
+  }
+  if (String(topic) == "hydroponic/set/TargetEC") {
+    tempTargetEC = messageTemp.toFloat() * 10;
+    menuTargetEC.setCurrentValue(tempTargetEC);
+  }
+  if (String(topic) == "hydroponic/set/EndTime") {
+    menuEndTime.setCurrentValue(messageTemp.toInt());
+  }
+  if (String(topic) == "hydroponic/set/StartTime") {
+    menuStartTime.setCurrentValue(messageTemp.toInt());
+  }
+  if (String(topic) == "hydroponic/set/TestTime") {
+    menuTestTime.setCurrentValue(messageTemp.toInt());
+  }
+  if (String(topic) == "hydroponic/set/TestDuration") {
+    menuTestDuration.setCurrentValue(messageTemp.toInt());
+  }
+  if (String(topic) == "hydroponic/set/MixDuration") {
+    menuMixDuration.setCurrentValue(messageTemp.toInt());
+  }
+
+  if (String(topic) == "hydroponic/set/AutoDose") {
+    if (messageTemp == "ON") {
+      menuAutoDose.setBoolean(true);
+    } else if (messageTemp == "OFF") {
+      menuAutoDose.setBoolean(false);
+    }
+  }
+  if (String(topic) == "hydroponic/set/Auto") {
+    if (messageTemp == "ON") {
+      menuAuto.setBoolean(true);
+    } else if (messageTemp == "OFF") {
+      menuAuto.setBoolean(false);
+    }
+  }
+  if (String(topic) == "hydroponic/set/RunMix") {
+    if (messageTemp == "ON") {
+      runMix(40);
+    } else if (messageTemp == "OFF") {
+      onStopAll(40);
+    }    
+  }
+  if (String(topic) == "hydroponic/set/runDose") {
+    if (messageTemp == "ON") {
+      runDose(40);
+    } else if (messageTemp == "OFF") {
+      onStopAll(40);  
+    }
+  }
+  if (String(topic) == "hydroponic/set/TestNow") {
+    if (messageTemp == "ON") {
+      runTest(40);
+    } else if (messageTemp == "OFF") {
+      onStopAll(40);
+    }    
+  }
+  if (String(topic) == "hydroponic/set/Pumping") {
+    if (messageTemp == "ON") {
+      RunPump(40);
+    } else if (messageTemp == "OFF") {
+      onStopAll(40);
+    }      
+  }
+  if (String(topic) == "hydroponic/set/StopAll") {
+    onStopAll(40);
+  }
+  if (String(topic) == "hydroponic/set/SaveSettings") {
+    onSaveSettings(40);
+  }
+  if (String(topic) == "hydroponic/set/Reboot") {
+    onReboot(40);
+  }
+
+}
+
+void MQTTsetup() {
+
+  client.setServer(mqtt_server, 1883);
+  if (client.connect(host, mqttUser, mqttPass)) {
+    client.publish("outTopic", "hello world");
+    boolean test = client.subscribe("hydroponic/set/#");
+    if (test) {
+      Serial.println("MQTT Subscribed"); 
+    }
+
+  }
+  client.setCallback(callback);
+
+}
+void reconnect() {
+  // Loop until we're reconnected
+  while (!client.connected()) {
+    Serial.print("Attempting MQTT connection...");
+    // Attempt to connect
+    if (client.connect(host, mqttUser, mqttPass)) {
+      Serial.println("connected"); 
+      // Subscribe
+      client.subscribe("hydroponic/set/#");
+    } else {
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      Serial.println(" try again in 5 seconds");
+      // Wait 5 seconds before retrying
+      // jangan la delayyyy delay(5000);
+      return;
+    }
+  }
+}
+void MQTTloop() {
+  String str;
+  float tempTargetEC;
+  float tempMinEC;
+
+  client.loop();
+
+  if (msgReceive) {
+    msgReceive = false;
+    return;
+  }
+  char tempString[16];
+
+  if (menuAutoDose.getBoolean() != tempAutoDose) {
+    tempAutoDose = menuAutoDose.getBoolean();
+    if (tempAutoDose) {
+      client.publish("hydroponic/AutoDose", "ON", true);
+    } else {
+      client.publish("hydroponic/AutoDose", "OFF", true);
+    }
+  }
+
+  if (menuAuto.getBoolean() != tempAuto) {
+    tempAuto = menuAuto.getBoolean();
+    if (tempAuto) {
+      client.publish("hydroponic/Auto", "ON", true);
+    } else {
+      client.publish("hydroponic/Auto", "OFF", true);
+    }
+  }
+
+  dtostrf(menuTestTime.getCurrentValue(), 1, 0, tempString);
+  if (strcmp(tempString, tempString1) != 0) {
+    strcpy(tempString1, tempString);
+    client.publish("hydroponic/TestTime", tempString);
+  }
+  dtostrf(menuTestDuration.getCurrentValue(), 1, 0, tempString);
+  if (strcmp(tempString, tempString2) != 0) {
+    strcpy(tempString2, tempString);
+    client.publish("hydroponic/TestDuration", tempString);
+  }
+  dtostrf(menuMixDuration.getCurrentValue(), 1, 0, tempString);
+  if (strcmp(tempString, tempString3) != 0) {
+    strcpy(tempString3, tempString);
+    client.publish("hydroponic/MixDuration", tempString);
+  }
+  dtostrf(menuEndTime.getCurrentValue(), 1, 0, tempString);
+  if (strcmp(tempString, tempString4) != 0) {
+    strcpy(tempString4, tempString);
+    client.publish("hydroponic/EndTime", tempString);
+  }
+  dtostrf(menuStartTime.getCurrentValue(), 1, 0, tempString);
+  if (strcmp(tempString, tempString5) != 0) {
+    strcpy(tempString5, tempString);
+    client.publish("hydroponic/StartTime", tempString);
+  }
+  dtostrf(menuIntervalMin.getCurrentValue(), 1, 0, tempString);
+  if (strcmp(tempString, tempString6) != 0) {
+    strcpy(tempString6, tempString);
+    client.publish("hydroponic/IntervalMin", tempString);
+  }
+  dtostrf(menuRunMin.getCurrentValue(), 1, 0, tempString);
+  if (strcmp(tempString, tempString7) != 0) {
+    strcpy(tempString7, tempString);
+    client.publish("hydroponic/RunMin", tempString);
+  }
+  tempMinEC = menuMinimumEC.getCurrentValue();
+  dtostrf(tempMinEC/10, 1, 1, tempString);
+  if (strcmp(tempString, tempString8) != 0) {
+    strcpy(tempString8, tempString);
+    client.publish("hydroponic/MinimumEC", tempString);
+  }
+  tempTargetEC = menuTargetEC.getCurrentValue();
+  dtostrf(tempTargetEC/10, 1, 1, tempString);
+  if (strcmp(tempString, tempString9) != 0) {
+    strcpy(tempString9, tempString);
+    client.publish("hydroponic/TargetEC", tempString);
+  }
+  dtostrf(menuMlMin.getCurrentValue(), 1, 0, tempString);
+  if (strcmp(tempString, tempString10) != 0) {
+    strcpy(tempString10, tempString);
+    client.publish("hydroponic/MlMin", tempString);
+  }
+  dtostrf(menuMl.getCurrentValue(), 1, 0, tempString);
+  if (strcmp(tempString, tempString11) != 0) {
+    strcpy(tempString11, tempString);
+    client.publish("hydroponic/Ml", tempString);
+  }
+
+  if ((temperature > 15) && (temperature < 50)) {
+    dtostrf(temperature, 1, 2, tempString);
+    if (strcmp(tempString, tempString12) != 0) {
+      strcpy(tempString12, tempString);
+      client.publish("hydroponic/temperature", tempString);
+    }
+  }
+  str = menustatus.getTextValue();
+  str.toCharArray(tempString, 16);
+  if (strcmp(tempString, tempString13) != 0) {
+    strcpy(tempString13, tempString);
+    client.publish("hydroponic/status", tempString);
+  }
+  dtostrf(phValue, 1, 2, tempString);
+  if (strcmp(tempString, tempString14) != 0) {
+    strcpy(tempString14, tempString);
+    client.publish("hydroponic/phValue", tempString);
+  }
+  dtostrf(ecValue, 1, 2, tempString);
+  if (strcmp(tempString, tempString15) != 0) {
+    strcpy(tempString15, tempString);
+    client.publish("hydroponic/ecValue", tempString);
+  }
+  sysVoltage.toCharArray(tempString, 16);
+  if (strcmp(tempString, tempString16) != 0) {
+    strcpy(tempString16, tempString);
+    client.publish("hydroponic/sysVoltage", tempString);
+  }
+  if (temppumpRunning != pumpRunning) {
+    temppumpRunning = pumpRunning;
+    if (temppumpRunning){client.publish("hydroponic/pumpRunning", "ON"); } else { client.publish("hydroponic/pumpRunning", "OFF"); }
+  }
+  if (tempTestRunning != TestRunning) {
+    tempTestRunning = TestRunning;
+    if (tempTestRunning){client.publish("hydroponic/TestRunning", "ON"); } else { client.publish("hydroponic/TestRunning", "OFF"); }
+  }
+  if (tempMixRunning != MixRunning) {
+    tempMixRunning = MixRunning;
+    if (tempMixRunning){client.publish("hydroponic/MixRunning", "ON"); } else { client.publish("hydroponic/MixRunning", "OFF"); }
+  }
+  if (tempDoseRunning != DoseRunning) {
+    tempDoseRunning = DoseRunning;
+    if (tempDoseRunning){client.publish("hydroponic/DoseRunning", "ON"); } else { client.publish("hydroponic/DoseRunning", "OFF"); }
+  }
+
+}
