@@ -69,11 +69,11 @@
       "parentId": 4,
       "type": "actionMenu",
       "item": {
-        "name": "Run Mix",
-        "variableName": "MixNow",
-        "id": 35,
+        "name": "Run Pump",
+        "variableName": "Pumping",
+        "id": 40,
         "eepromAddress": -1,
-        "functionName": "runMix",
+        "functionName": "RunPump",
         "readOnly": false,
         "localOnly": false,
         "visible": true
@@ -97,11 +97,11 @@
       "parentId": 4,
       "type": "actionMenu",
       "item": {
-        "name": "Run Pump",
-        "variableName": "Pumping",
-        "id": 40,
+        "name": "Run Mix",
+        "variableName": "MixNow",
+        "id": 35,
         "eepromAddress": -1,
-        "functionName": "RunPump",
+        "functionName": "runMix",
         "readOnly": false,
         "localOnly": false,
         "visible": true
@@ -241,6 +241,66 @@
         "id": 24,
         "eepromAddress": 107,
         "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 23,
+      "type": "subMenu",
+      "item": {
+        "secured": false,
+        "name": "Calibrate",
+        "variableName": "Calibrate",
+        "id": 47,
+        "eepromAddress": -1,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 47,
+      "type": "enumItem",
+      "item": {
+        "enumEntries": [
+          "EC",
+          "pH"
+        ],
+        "name": "Select Sensor",
+        "variableName": "optCall",
+        "id": 51,
+        "eepromAddress": -1,
+        "readOnly": false,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 47,
+      "type": "textItem",
+      "item": {
+        "textLength": 16,
+        "itemType": "PLAIN_TEXT",
+        "name": "Calibration",
+        "variableName": "CalStatus",
+        "id": 49,
+        "eepromAddress": -1,
+        "readOnly": true,
+        "localOnly": false,
+        "visible": true
+      }
+    },
+    {
+      "parentId": 47,
+      "type": "actionMenu",
+      "item": {
+        "name": "OK",
+        "variableName": "OK",
+        "id": 50,
+        "eepromAddress": -1,
+        "functionName": "calecph",
+        "readOnly": true,
         "localOnly": false,
         "visible": true
       }

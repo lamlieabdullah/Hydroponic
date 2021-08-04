@@ -15,7 +15,7 @@ float duration = 0;
 String sysVoltage;
       
 //float  phValue,ecValue,temperature;
-float minEC,targetEC;
+float minEC,targetEC, tempEC;
 
 //var utk schedule
 bool newday = true;
@@ -23,7 +23,10 @@ bool pumpRunning = false;
 bool TestRunning = false;
 bool MixRunning = false;
 bool DoseRunning = false;
+bool autoDoseRunning = false;
 int pumpStopTime;
+int dosingStep = 0;
+int dosingCount = 0;
 
 int PumpRelay   = 25;
 int DosingRelay = 26;
@@ -50,6 +53,7 @@ void offAll(){
     TestRunning = false;
     MixRunning = false;
     DoseRunning = false;
+    dosingStep = 0;
 
     pumpStopTime = (timeinfo.tm_hour*100+timeinfo.tm_min);
     menustatus.setTextValue("idle");
@@ -58,8 +62,7 @@ void offAll(){
 void scheduleSetup() {
   
     pinMode(PumpRelay, OUTPUT);
-    pinMode(DosingRelay,
-    OUTPUT);
+    pinMode(DosingRelay, OUTPUT);
     pinMode(Valve1Relay, OUTPUT);
     pinMode(Valve2Relay, OUTPUT);
     offAll();
@@ -79,30 +82,22 @@ void Dosing() {
 
   char charVolts[5];
 
-  if (DoseRunning) {
+    ml = menuMl.getCurrentValue();
+    mlmin = menuMlMin.getCurrentValue();
+    duration = ((ml / mlmin) * 60);
+  
+    relayOn(PumpRelay);
+    relayOn(DosingRelay);
+    Serial.println("Dosing Run ");
     
-      //Serial.println((ads.readADC_SingleEnded(3)* 0.1875)/1000);
-     
-      //0.000719035)*11);
-      //* 0.0217667844522968);
-      //0.1875
-      
-      ml = menuMl.getCurrentValue();
-      mlmin = menuMlMin.getCurrentValue();
-      duration = ((ml / mlmin) * 60);
-
-      relayOn(PumpRelay);
-      relayOn(DosingRelay);
-      Serial.println("Dosing Run ");
-      
-      menustatus.setTextValue("Dosing...      ");
-
-      delayRunning = true;
-      delayStart = millis();
-  }
+    menustatus.setTextValue("Dosing...      ");
+    DoseRunning = true;
+    delayRunning = true;
+    delayStart = millis();
 }
 
 void readSensors(){
+  String tempStatus;
   temperature = readTemperature();
   if ((temperature > 15) && (temperature <50)) { 
     menutemperature.setCurrentValue(temperature); 
@@ -115,12 +110,19 @@ void readSensors(){
         menuPHEC.setTextValue(str_ph_ec.c_str(), false);
         menutemperature.setCurrentValue(temperature);
   }
+  if (calECpH) {
+    dfrobotEcPh();
+     if (calibStep == 3) {
+       menuCalStatus.setTextValue(ec.callStatus);
+     }
+  //  tempStatus = ("pH" + String(phValue) + " " + String(ecValue) + "ms/cm");
+  //  menuCalStatus.setTextValue(tempStatus.c_str());
+  //  menuCalStatus.setTextValue(callStatus);
+  }
 }
 
 void CALLBACK_FUNCTION runDose(int id) {
       offAll();
-
-      DoseRunning = true;
       Dosing();
 }
 
@@ -131,7 +133,7 @@ void CALLBACK_FUNCTION runMix(int id) {
       duration = (sec * 60);
 
       relayOn(PumpRelay);
-      Serial.println("Mixing");
+      //Serial.println("Mixing");
       menustatus.setTextValue("Mixing...      ");
 
       MixRunning = true;
@@ -227,7 +229,7 @@ int ontime, offtime, now;
   if (menuAuto.getBoolean() == 1 && now>=ontime && now<=offtime) {
     //Pump run ikut schedule
 
-    if (!pumpRunning && !TestRunning && !MixRunning && !DoseRunning){
+    if (!pumpRunning && !TestRunning && !MixRunning && !DoseRunning && !autoDoseRunning){
       ontime = pumpStopTime + menuIntervalMin.getCurrentValue();
       if (now >= ontime){       
         RunPump(40); //auto stop after time set
@@ -235,17 +237,17 @@ int ontime, offtime, now;
       } else if (newday) {
         RunPump(40);
         newday = false;
-        }
+      }
     }
-  }
+  } 
 }
 void TestSchedule(){
 int ontime, now;
 //  struct tm timeinfo; moved atas
   
-  if(!getLocalTime(&timeinfo)){
-    Serial.println("Failed to update time");
-  }
+  //if(!getLocalTime(&timeinfo)){
+  //  Serial.println("Failed to update time");
+  //}
   ontime = (menuTestTime.getCurrentValue()*100);
   now = (timeinfo.tm_hour*100)+(timeinfo.tm_min);
 
@@ -256,18 +258,38 @@ int ontime, now;
         runTest(40); //auto stop after time set
     }
   }
-  if (menuAutoDose.getBoolean() == 1) {
-     if (ecValue > 0.5 && ecValue < menuMinimumEC.getCurrentValue()/10){
-        Serial.println("Auto Dosing Running");
-        DoseRunning = true;
-        Dosing();
-        if (!TestRunning){
-          runTest(40); //auto stop after time set
+  //Auto dosing. //
+  if (menuAutoDose.getBoolean() == 1 && !TestRunning && !MixRunning && !DoseRunning) {
+     if (ecValue > 0.01 && ecValue < menuMinimumEC.getCurrentValue()/10){
+        //Serial.print("Auto Dosing Running: Step: ");
+        //Serial.println(dosingStep);
+        menustatus.setTextValue("Auto Dosing Running");
+        autoDoseRunning = true;
+        if (dosingStep == 0) {
+          Dosing();
+          dosingStep = dosingStep + 1;
+          dosingCount = dosingCount + 1;
+        } else if (dosingStep == 1) {
+          runMix(40);
+          dosingStep = dosingStep + 1;
+        } else if (dosingStep == 2) {
+          runTest(40);
+          dosingStep = 0;
+          //Stop if no ec increment after 3 cycles
+          if (dosingCount = 1) { tempEC = ecValue; }
+          if (dosingCount = 3 && ecValue-tempEC <= 0.1) { 
+            menustatus.setTextValue("Auto Dosing Failed");
+            dosingCount = 0;
+            menuAutoDose.setBoolean(false);
+            autoDoseRunning = false;
+            }
         }
      }
      if (ecValue >= menuTargetEC.getCurrentValue()/10){
-        DoseRunning = false;
-        //offAll();      
+        dosingStep = 0;
+        dosingCount = 0;
+        autoDoseRunning = false;
+        //offAll();
      }   
   }
 }

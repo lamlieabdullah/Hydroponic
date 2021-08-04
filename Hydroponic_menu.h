@@ -50,6 +50,11 @@ extern SubMenuItem menuRunningTime;
 extern TimeFormattedMenuItem menuCurrentTime;
 extern BackMenuItem menuBackTime;
 extern SubMenuItem menuTime;
+extern ActionMenuItem menuOK;
+extern TextMenuItem menuCalStatus;
+extern EnumMenuItem menuoptCall;
+extern BackMenuItem menuBackCalibrate;
+extern SubMenuItem menuCalibrate;
 extern AnalogMenuItem menuMinimumEC;
 extern AnalogMenuItem menuTargetEC;
 extern BackMenuItem menuBackEC;
@@ -61,9 +66,9 @@ extern AnalogMenuItem menuMl;
 extern BackMenuItem menuBackDosing;
 extern SubMenuItem menuDosing;
 extern ActionMenuItem menuStopAll;
-extern ActionMenuItem menuPumping;
-extern ActionMenuItem menuTestNow;
 extern ActionMenuItem menuMixNow;
+extern ActionMenuItem menuTestNow;
+extern ActionMenuItem menuPumping;
 extern BackMenuItem menuBackSettings;
 extern SubMenuItem menuSettings;
 extern AnalogMenuItem menutemperature;
@@ -77,6 +82,7 @@ inline MenuItem& rootMenuItem() { return menustatus; }
 #define CALLBACK_FUNCTION
 
 void CALLBACK_FUNCTION RunPump(int id);
+void CALLBACK_FUNCTION calecph(int id);
 void CALLBACK_FUNCTION onReboot(int id);
 void CALLBACK_FUNCTION onSaveSettings(int id);
 void CALLBACK_FUNCTION onStopAll(int id);

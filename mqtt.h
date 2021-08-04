@@ -31,14 +31,16 @@ char tempString13[16];
 char tempString14[16];
 char tempString15[16];
 char tempString16[16];
+char tempString17[16];
+int tempString18;
 
 bool temppumpRunning = false;
 bool tempTestRunning = false;
 bool tempMixRunning = false;
 bool tempDoseRunning = false;
 
-bool tempAuto;
-bool tempAutoDose;
+bool tempAuto = false;
+bool tempAutoDose = false;
 float tempTargetEC;
 float tempMinEC;
 
@@ -148,7 +150,16 @@ void callback(char* topic, byte* message, unsigned int length) {
   if (String(topic) == "hydroponic/set/Reboot") {
     onReboot(40);
   }
-
+  if (String(topic) == "hydroponic/set/CalSelect") {
+    if (messageTemp == "EC") {
+      (menuoptCall.setCurrentValue(0));
+    } else if (messageTemp == "pH") {
+      (menuoptCall.setCurrentValue(1));
+    }
+  }
+  if (String(topic) == "hydroponic/set/EnterCall") {
+    calecph(40);
+  } 
 }
 
 void MQTTsetup() {
@@ -197,125 +208,186 @@ void MQTTloop() {
   }
   char tempString[16];
 
-  if (menuAutoDose.getBoolean() != tempAutoDose) {
-    tempAutoDose = menuAutoDose.getBoolean();
-    if (tempAutoDose) {
-      client.publish("hydroponic/AutoDose", "ON", true);
-    } else {
-      client.publish("hydroponic/AutoDose", "OFF", true);
-    }
+  str = menustatus.getTextValue();
+  str.toCharArray(tempString, 16);
+  if (strcmp(tempString, tempString13) != 0) {
+    strcpy(tempString13, tempString);
+    client.publish("hydroponic/status", tempString);
+    Blynk.virtualWrite(V0, tempString);
   }
 
-  if (menuAuto.getBoolean() != tempAuto) {
-    tempAuto = menuAuto.getBoolean();
-    if (tempAuto) {
-      client.publish("hydroponic/Auto", "ON", true);
-    } else {
-      client.publish("hydroponic/Auto", "OFF", true);
-    }
-  }
-
-  dtostrf(menuTestTime.getCurrentValue(), 1, 0, tempString);
-  if (strcmp(tempString, tempString1) != 0) {
-    strcpy(tempString1, tempString);
-    client.publish("hydroponic/TestTime", tempString);
-  }
-  dtostrf(menuTestDuration.getCurrentValue(), 1, 0, tempString);
-  if (strcmp(tempString, tempString2) != 0) {
-    strcpy(tempString2, tempString);
-    client.publish("hydroponic/TestDuration", tempString);
-  }
-  dtostrf(menuMixDuration.getCurrentValue(), 1, 0, tempString);
-  if (strcmp(tempString, tempString3) != 0) {
-    strcpy(tempString3, tempString);
-    client.publish("hydroponic/MixDuration", tempString);
-  }
-  dtostrf(menuEndTime.getCurrentValue(), 1, 0, tempString);
-  if (strcmp(tempString, tempString4) != 0) {
-    strcpy(tempString4, tempString);
-    client.publish("hydroponic/EndTime", tempString);
-  }
-  dtostrf(menuStartTime.getCurrentValue(), 1, 0, tempString);
-  if (strcmp(tempString, tempString5) != 0) {
-    strcpy(tempString5, tempString);
-    client.publish("hydroponic/StartTime", tempString);
-  }
-  dtostrf(menuIntervalMin.getCurrentValue(), 1, 0, tempString);
-  if (strcmp(tempString, tempString6) != 0) {
-    strcpy(tempString6, tempString);
-    client.publish("hydroponic/IntervalMin", tempString);
-  }
+ 
   dtostrf(menuRunMin.getCurrentValue(), 1, 0, tempString);
   if (strcmp(tempString, tempString7) != 0) {
     strcpy(tempString7, tempString);
     client.publish("hydroponic/RunMin", tempString);
+    Blynk.virtualWrite(V1, tempString);
+  
+  }  
+  dtostrf(menuIntervalMin.getCurrentValue(), 1, 0, tempString);
+  if (strcmp(tempString, tempString6) != 0) {
+    strcpy(tempString6, tempString);
+    client.publish("hydroponic/IntervalMin", tempString);
+    Blynk.virtualWrite(V2, tempString);
+
+  }
+  dtostrf(menuMlMin.getCurrentValue(), 1, 0, tempString);
+  if (strcmp(tempString, tempString10) != 0) {
+    strcpy(tempString10, tempString);
+    client.publish("hydroponic/MlMin", tempString);
+    Blynk.virtualWrite(V3, tempString);
+  }
+  dtostrf(menuMl.getCurrentValue(), 1, 0, tempString);
+  if (strcmp(tempString, tempString11) != 0) {
+    strcpy(tempString11, tempString);
+    client.publish("hydroponic/Ml", tempString);
+    Blynk.virtualWrite(V4, tempString);
   }
   tempMinEC = menuMinimumEC.getCurrentValue();
   dtostrf(tempMinEC/10, 1, 1, tempString);
   if (strcmp(tempString, tempString8) != 0) {
     strcpy(tempString8, tempString);
     client.publish("hydroponic/MinimumEC", tempString);
+    Blynk.virtualWrite(V5, tempString);
   }
   tempTargetEC = menuTargetEC.getCurrentValue();
   dtostrf(tempTargetEC/10, 1, 1, tempString);
   if (strcmp(tempString, tempString9) != 0) {
     strcpy(tempString9, tempString);
     client.publish("hydroponic/TargetEC", tempString);
+    Blynk.virtualWrite(V6, tempString);
   }
-  dtostrf(menuMlMin.getCurrentValue(), 1, 0, tempString);
-  if (strcmp(tempString, tempString10) != 0) {
-    strcpy(tempString10, tempString);
-    client.publish("hydroponic/MlMin", tempString);
+  dtostrf(menuEndTime.getCurrentValue(), 1, 0, tempString);
+  if (strcmp(tempString, tempString4) != 0) {
+    strcpy(tempString4, tempString);
+    client.publish("hydroponic/EndTime", tempString);
+    Blynk.virtualWrite(V7, tempString);
   }
-  dtostrf(menuMl.getCurrentValue(), 1, 0, tempString);
-  if (strcmp(tempString, tempString11) != 0) {
-    strcpy(tempString11, tempString);
-    client.publish("hydroponic/Ml", tempString);
+  dtostrf(menuStartTime.getCurrentValue(), 1, 0, tempString);
+  if (strcmp(tempString, tempString5) != 0) {
+    strcpy(tempString5, tempString);
+    client.publish("hydroponic/StartTime", tempString);
+    Blynk.virtualWrite(V8, tempString);
+  }
+  dtostrf(menuTestTime.getCurrentValue(), 1, 0, tempString);
+  if (strcmp(tempString, tempString1) != 0) {
+    strcpy(tempString1, tempString);
+    client.publish("hydroponic/TestTime", tempString);
+    Blynk.virtualWrite(V9, tempString);
+  }
+  dtostrf(menuTestDuration.getCurrentValue(), 1, 0, tempString);
+  if (strcmp(tempString, tempString2) != 0) {
+    strcpy(tempString2, tempString);
+    client.publish("hydroponic/TestDuration", tempString);
+    Blynk.virtualWrite(V10, tempString);
   }
 
+  dtostrf(menuMixDuration.getCurrentValue(), 1, 0, tempString);
+  if (strcmp(tempString, tempString3) != 0) {
+    strcpy(tempString3, tempString);
+    client.publish("hydroponic/MixDuration", tempString);
+    Blynk.virtualWrite(V11, tempString);
+  }
+  if (menuAutoDose.getBoolean() != tempAutoDose) {
+    tempAutoDose = menuAutoDose.getBoolean();
+    if (tempAutoDose) {
+      client.publish("hydroponic/AutoDose", "ON", true);
+      Blynk.virtualWrite(V12, 1);
+    } else {
+      client.publish("hydroponic/AutoDose", "OFF", true);
+      Blynk.virtualWrite(V12, 0);
+    }
+  }
+  if (menuAuto.getBoolean() != tempAuto) {
+    tempAuto = menuAuto.getBoolean();
+    if (tempAuto) {
+      client.publish("hydroponic/Auto", "ON", true);
+      Blynk.virtualWrite(V13, 1);  
+    } else {
+      client.publish("hydroponic/Auto", "OFF", true);
+      Blynk.virtualWrite(V13, 0);
+    }
+  } 
+  if (tempMixRunning != MixRunning) {
+    tempMixRunning = MixRunning;
+    if (tempMixRunning){client.publish("hydroponic/MixRunning", "ON"); 
+      Blynk.virtualWrite(V14, 1);    
+    } else { 
+      client.publish("hydroponic/MixRunning", "OFF"); 
+      Blynk.virtualWrite(V14, 0);      
+      }
+  }
+  if (tempDoseRunning != DoseRunning) {
+    tempDoseRunning = DoseRunning;
+    if (tempDoseRunning){client.publish("hydroponic/DoseRunning", "ON"); 
+      Blynk.virtualWrite(V15, 1);    
+    } else { 
+      client.publish("hydroponic/DoseRunning", "OFF"); 
+      Blynk.virtualWrite(V15, 0);      
+      }
+  }
+  if (tempTestRunning != TestRunning) {
+    tempTestRunning = TestRunning;
+    if (tempTestRunning){client.publish("hydroponic/TestRunning", "ON"); 
+      Blynk.virtualWrite(V16, 1);    
+    } else { 
+      client.publish("hydroponic/TestRunning", "OFF"); 
+      Blynk.virtualWrite(V16, 0);     
+      }
+  }
+  if (temppumpRunning != pumpRunning) {
+    temppumpRunning = pumpRunning;
+    if (temppumpRunning){
+      client.publish("hydroponic/pumpRunning", "ON"); 
+      Blynk.virtualWrite(V17, 1);    
+    } else { 
+      client.publish("hydroponic/pumpRunning", "OFF"); 
+      Blynk.virtualWrite(V17, 0);     
+      }
+  }
+  if (menuoptCall.getCurrentValue() !=  tempString18) {
+    tempString18 = menuoptCall.getCurrentValue();
+    if (tempString18 = 0) { 
+      client.publish("hydroponic/CalSelect", "EC"); 
+      Blynk.virtualWrite(V22, 0);      
+      }
+    else {
+      client.publish("hydroponic/CalSelect", "pH"); 
+      Blynk.virtualWrite(V22, 1);   
+    }
+  }
   if ((temperature > 15) && (temperature < 50)) {
     dtostrf(temperature, 1, 2, tempString);
     if (strcmp(tempString, tempString12) != 0) {
       strcpy(tempString12, tempString);
       client.publish("hydroponic/temperature", tempString);
+      Blynk.virtualWrite(V23, tempString);
     }
-  }
-  str = menustatus.getTextValue();
-  str.toCharArray(tempString, 16);
-  if (strcmp(tempString, tempString13) != 0) {
-    strcpy(tempString13, tempString);
-    client.publish("hydroponic/status", tempString);
   }
   dtostrf(phValue, 1, 2, tempString);
   if (strcmp(tempString, tempString14) != 0) {
     strcpy(tempString14, tempString);
     client.publish("hydroponic/phValue", tempString);
+    Blynk.virtualWrite(V24, tempString);
   }
   dtostrf(ecValue, 1, 2, tempString);
   if (strcmp(tempString, tempString15) != 0) {
     strcpy(tempString15, tempString);
     client.publish("hydroponic/ecValue", tempString);
+    Blynk.virtualWrite(V25, tempString);
   }
   sysVoltage.toCharArray(tempString, 16);
   if (strcmp(tempString, tempString16) != 0) {
     strcpy(tempString16, tempString);
     client.publish("hydroponic/sysVoltage", tempString);
+    Blynk.virtualWrite(V26, tempString);
   }
-  if (temppumpRunning != pumpRunning) {
-    temppumpRunning = pumpRunning;
-    if (temppumpRunning){client.publish("hydroponic/pumpRunning", "ON"); } else { client.publish("hydroponic/pumpRunning", "OFF"); }
-  }
-  if (tempTestRunning != TestRunning) {
-    tempTestRunning = TestRunning;
-    if (tempTestRunning){client.publish("hydroponic/TestRunning", "ON"); } else { client.publish("hydroponic/TestRunning", "OFF"); }
-  }
-  if (tempMixRunning != MixRunning) {
-    tempMixRunning = MixRunning;
-    if (tempMixRunning){client.publish("hydroponic/MixRunning", "ON"); } else { client.publish("hydroponic/MixRunning", "OFF"); }
-  }
-  if (tempDoseRunning != DoseRunning) {
-    tempDoseRunning = DoseRunning;
-    if (tempDoseRunning){client.publish("hydroponic/DoseRunning", "ON"); } else { client.publish("hydroponic/DoseRunning", "OFF"); }
+  str = menuCalStatus.getTextValue();
+  str.toCharArray(tempString, 16);
+  if (strcmp(tempString, tempString17) != 0) {
+    strcpy(tempString17, tempString);
+    client.publish("hydroponic/callstatus", tempString);
+    Blynk.virtualWrite(V27, tempString);
   }
 
 }

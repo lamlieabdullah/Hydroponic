@@ -13,8 +13,8 @@
  *
  */
 
-#include <DFRobot_PH.h>
-#include <DFRobot_EC.h>
+#include "DFRobot_PH.h"
+#include "DFRobot_EC.h"
 #include <EEPROM.h>
 //Temperature
 #include <OneWire.h> //Temperature
@@ -37,10 +37,13 @@ int relay2 = 19;
 #define EC_PIN 1
 
 float  voltagePH,voltageEC,phValue,ecValue,temperature = 25;
+bool calECpH = false;
 DFRobot_PH ph;
 DFRobot_EC ec;
 
 String str_ph_ec,strph,strec;
+
+int calibStep = 0;
 
 // oee void setup()
 void dfrobot_ph_ec()
@@ -113,7 +116,7 @@ bool readSerial(char result[]){
 //Oee void loop()
 void dfrobotEcPh()
 {
-    float tempPH;
+    float tempPH, tempEC;
     char cmd[10];
     static unsigned long timepoint = millis();
     if(millis()-timepoint>1000U){                            //time interval: 1s
@@ -121,7 +124,7 @@ void dfrobotEcPh()
         temperature = readTemperature();                   // read your temperature sensor to execute temperature compensation
         voltagePH = (ads.readADC_SingleEnded(PH_PIN) * 0.1875);
         tempPH = ph.readPH(voltagePH,temperature);       // convert voltage to pH with temperature compensation
-        if(tempPH <= 9) { phValue = tempPH; }
+        if(tempPH <= 8) { phValue = tempPH; }
         Serial.print("Temp:");
         Serial.print(temperature,2);
         Serial.print(", voltage:");
@@ -130,8 +133,9 @@ void dfrobotEcPh()
         Serial.print(phValue,2);
         
         voltageEC = (ads.readADC_SingleEnded(EC_PIN) * 0.1875);      
-        ecValue = ec.readEC(voltageEC,temperature);       // convert voltage to EC with temperature compensation
-        
+        tempEC = ec.readEC(voltageEC,temperature);       // convert voltage to EC with temperature compensation
+        if(tempEC >=0) { ecValue = tempEC; }
+
         str_ph_ec = "pH" + String(phValue) + " " + String(ecValue) + "ms/cm";
         
         Serial.print(", voltage:");
@@ -148,5 +152,64 @@ void dfrobotEcPh()
         if(strstr(cmd,"EC")){
             ec.calibration(voltageEC,temperature,cmd);       //EC calibration process by Serail CMD
         }
+    }
+}
+
+void CALLBACK_FUNCTION calecph(int id) {
+  char cmd[10];
+//    if String(menuCalStatus.getTextValue() == "");
+
+    if ( menuoptCall.getCurrentValue() == 0) { //ec
+    Serial.println("Calibrate Hello!!");
+        if (calibStep == 0) {
+          menuCalStatus.setTextValue("Calibrate EC     ");
+          calECpH = true;
+          strncpy( cmd, "enterec", sizeof(cmd) );
+          ec.calibration(voltageEC,temperature,cmd); 
+          calibStep = 1;
+          Serial.println("Calibrate EC Step 1");
+        } else if (calibStep == 1) {
+          menuCalStatus.setTextValue("Ins buff sollut");
+          calECpH = true;
+          strncpy( cmd, "calec", sizeof(cmd) );
+          ec.calibration(voltageEC,temperature,cmd);
+          calibStep = 2;
+          //menuCalStatus.setTextValue(ec.callStatus);
+         Serial.println("Calibrate EC Step 2");
+        } else if (calibStep == 2) {
+          //menuCalStatus.setTextValue("EC Done        ");
+          menuCalStatus.setTextValue(ec.callStatus);
+          calECpH = false;
+          strncpy( cmd, "exitec", sizeof(cmd) );
+          ec.calibration(voltageEC,temperature,cmd);
+          calibStep = 0;
+          ec._ecCalibrationFinish = 0;
+          Serial.println("Calibrate EC Step 3");
+        }
+    } else if ( menuoptCall.getCurrentValue() == 1) {  //pH
+        if (calibStep == 0) {
+          menuCalStatus.setTextValue("Calibrate pH     ");
+          calECpH = true;
+          strncpy( cmd, "enterph", sizeof(cmd) );
+          ph.calibration(voltagePH,temperature,cmd); 
+          calibStep = 1;
+          Serial.println("Calibrate pH Step 1");
+        } else if (calibStep == 1) {
+          menuCalStatus.setTextValue("Ins buff sollut");
+          calECpH = true;
+          strncpy( cmd, "calph", sizeof(cmd) );
+          ph.calibration(voltagePH,temperature,cmd);
+          calibStep = 2;
+         Serial.println("Calibrate pH Step 2");
+        } else if (calibStep == 2) {
+          //menuCalStatus.setTextValue("pH Done        ");
+          menuCalStatus.setTextValue(ph.callStatus);
+          calECpH = false;
+          strncpy( cmd, "exitph", sizeof(cmd) );
+          ph.calibration(voltagePH,temperature,cmd);
+          calibStep = 0;
+          ph._phCalibrationFinish = 0;
+      //    menuMgr.setCurrentMenu(menuoptCall);
+        }     
     }
 }

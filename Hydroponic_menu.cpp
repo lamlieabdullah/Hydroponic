@@ -64,8 +64,21 @@ RENDERING_CALLBACK_NAME_INVOKE(fnTimeRtCall, backSubItemRenderFn, "Time", -1, NO
 const PROGMEM SubMenuInfo minfoTime = { "Time", 13, 0xffff, 0, NO_CALLBACK };
 BackMenuItem menuBackTime(fnTimeRtCall, &menuCurrentTime);
 SubMenuItem menuTime(&minfoTime, &menuBackTime, &menuRunningTime);
+const PROGMEM AnyMenuInfo minfoOK = { "OK", 50, 0xffff, 0, calecph };
+ActionMenuItem menuOK(&minfoOK, NULL);
+RENDERING_CALLBACK_NAME_INVOKE(fnCalStatusRtCall, textItemRenderFn, "Calibration", -1, NO_CALLBACK)
+TextMenuItem menuCalStatus(fnCalStatusRtCall, 49, 16, &menuOK);
+const char enumStroptCall_0[] PROGMEM = "EC";
+const char enumStroptCall_1[] PROGMEM = "pH";
+const char* const enumStroptCall[] PROGMEM  = { enumStroptCall_0, enumStroptCall_1 };
+const PROGMEM EnumMenuInfo minfooptCall = { "Select Sensor", 51, 0xffff, 1, NO_CALLBACK, enumStroptCall };
+EnumMenuItem menuoptCall(&minfooptCall, 0, &menuCalStatus);
+RENDERING_CALLBACK_NAME_INVOKE(fnCalibrateRtCall, backSubItemRenderFn, "Calibrate", -1, NO_CALLBACK)
+const PROGMEM SubMenuInfo minfoCalibrate = { "Calibrate", 47, 0xffff, 0, NO_CALLBACK };
+BackMenuItem menuBackCalibrate(fnCalibrateRtCall, &menuoptCall);
+SubMenuItem menuCalibrate(&minfoCalibrate, &menuBackCalibrate, NULL);
 const PROGMEM AnalogMenuInfo minfoMinimumEC = { "Minimum", 24, 107, 100, NO_CALLBACK, 0, 10, "mscm" };
-AnalogMenuItem menuMinimumEC(&minfoMinimumEC, 0, NULL);
+AnalogMenuItem menuMinimumEC(&minfoMinimumEC, 0, &menuCalibrate);
 const PROGMEM AnalogMenuInfo minfoTargetEC = { "Target", 25, 109, 100, NO_CALLBACK, 0, 10, "mscm" };
 AnalogMenuItem menuTargetEC(&minfoTargetEC, 0, &menuMinimumEC);
 RENDERING_CALLBACK_NAME_INVOKE(fnECRtCall, backSubItemRenderFn, "EC", -1, NO_CALLBACK)
@@ -86,15 +99,15 @@ BackMenuItem menuBackDosing(fnDosingRtCall, &menuMl);
 SubMenuItem menuDosing(&minfoDosing, &menuBackDosing, &menuEC);
 const PROGMEM AnyMenuInfo minfoStopAll = { "Stop All", 41, 0xffff, 0, onStopAll };
 ActionMenuItem menuStopAll(&minfoStopAll, &menuDosing);
-const PROGMEM AnyMenuInfo minfoPumping = { "Run Pump", 40, 0xffff, 0, RunPump };
-ActionMenuItem menuPumping(&minfoPumping, &menuStopAll);
-const PROGMEM AnyMenuInfo minfoTestNow = { "Run Test", 39, 0xffff, 0, runTest };
-ActionMenuItem menuTestNow(&minfoTestNow, &menuPumping);
 const PROGMEM AnyMenuInfo minfoMixNow = { "Run Mix", 35, 0xffff, 0, runMix };
-ActionMenuItem menuMixNow(&minfoMixNow, &menuTestNow);
+ActionMenuItem menuMixNow(&minfoMixNow, &menuStopAll);
+const PROGMEM AnyMenuInfo minfoTestNow = { "Run Test", 39, 0xffff, 0, runTest };
+ActionMenuItem menuTestNow(&minfoTestNow, &menuMixNow);
+const PROGMEM AnyMenuInfo minfoPumping = { "Run Pump", 40, 0xffff, 0, RunPump };
+ActionMenuItem menuPumping(&minfoPumping, &menuTestNow);
 RENDERING_CALLBACK_NAME_INVOKE(fnSettingsRtCall, backSubItemRenderFn, "Settings", -1, NO_CALLBACK)
 const PROGMEM SubMenuInfo minfoSettings = { "Settings", 4, 0xffff, 0, NO_CALLBACK };
-BackMenuItem menuBackSettings(fnSettingsRtCall, &menuMixNow);
+BackMenuItem menuBackSettings(fnSettingsRtCall, &menuPumping);
 SubMenuItem menuSettings(&minfoSettings, &menuBackSettings, NULL);
 const PROGMEM AnalogMenuInfo minfotemperature = { "Temperature", 3, 0xffff, 100, NO_CALLBACK, 0, 1, "C" };
 AnalogMenuItem menutemperature(&minfotemperature, 0, &menuSettings);
@@ -106,11 +119,13 @@ TextMenuItem menustatus(fnstatusRtCall, 44, 16, &menuPHEC);
 // Set up code
 
 void setupMenu() {
-    menustatus.setReadOnly(true);
-    menuSettings.setReadOnly(true);
+    menuOK.setReadOnly(true);
     menuPHEC.setReadOnly(true);
+    menuSettings.setReadOnly(true);
+    menuCalStatus.setReadOnly(true);
     menutemperature.setReadOnly(true);
     menuWifiSettings.setReadOnly(true);
+    menustatus.setReadOnly(true);
 
     Wire.begin();
     lcd.setIoAbstraction(ioFrom8574(0x27, 0xff, &Wire));
