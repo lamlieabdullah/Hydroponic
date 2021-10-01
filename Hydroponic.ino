@@ -1,3 +1,14 @@
+//
+// 1/10/2021 - Remove Blynk
+//
+//
+//
+//
+//
+//
+
+
+
 const char* host = "hydroponic";
 char*  mqttUser = "mqtt";
 char* mqttPass = "mqtt";
@@ -9,15 +20,6 @@ bool iConnected = false;
 bool ret;
 bool mqttServerConnect = false;
 
-/* Comment this out to disable prints and save space */
-#define BLYNK_PRINT Serial
-//#define BLYNK_DEBUG
-#define BLYNK_TEMPLATE_ID "TMPLm5h3Dqga"
-#define BLYNK_DEVICE_NAME "Hydroponic"
-char auth[] = "QPSWURKGo0wyIBSSvixt98JZBEoPOqt8";
-
-#include <BlynkSimpleEsp32.h>
-//#include <BlynkSimpleEthernet.h>
 #include "Hydroponic_menu.h"
 #include "DFRobot_PH_EC.h"
 #include <WiFi.h>
@@ -27,7 +29,6 @@ char auth[] = "QPSWURKGo0wyIBSSvixt98JZBEoPOqt8";
 #include "schedule.h"
 #include "mqtt.h"
 #include <ESP32Ping.h> //https://github.com/marian-craciunescu/ESP32Ping
-#include "blynk.h"
 
 const char pgmCommittedToRom[] PROGMEM = "Saved to ROM";
 ArduinoEEPROMAbstraction arduinoEeprom(&EEPROM);
@@ -72,10 +73,6 @@ void setup() {
     }
     scheduleSetup();
     offAll();
-    IPAddress BlynkServerIP(188, 166, 206, 43);
-  //  Blynk.config(auth, BlynkServerIP, 8080);
-  //  Blynk.begin(auth, ssid, pass);
-    Blynk.config(auth); 
 
 //run every 30 sec
   taskManager.scheduleFixedRate(30000, [] {
@@ -112,11 +109,6 @@ void setup() {
         if (mqttServerConnect) { MQTTloop(); }
         readSensors();
         TestSchedule();
-
-       // if (Blynk.connect(10)) {
-       //   myBlynkEvent();
-          Blynk.run();
-       // }
     });  
 }
 
